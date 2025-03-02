@@ -22,11 +22,14 @@
       font-size: 16px;
       line-height: 1.4;
       padding: 20px;
+      /* Prevent horizontal scroll if things get wide. */
+      overflow-x: hidden;
     }
+    /* Remove fixed width/height so we can resize dynamically via JS */
     canvas {
       display: block;
       margin-bottom: 20px;
-      /* Removed the border around the canvas */
+      /* No border; let the background be black. */
     }
     a {
       color: #0ff;  /* Bright cyan for links */
@@ -61,48 +64,11 @@
 </head>
 <body>
 
-  <!-- Canvas element for the retro header -->
-  <canvas id="bbsCanvas" width="600" height="320"></canvas>
+  <!-- Canvas element for the retro header; width/height set by JS -->
+  <canvas id="bbsCanvas"></canvas>
 
-  <script>
-    // Access the canvas element and its drawing context
-    const canvas = document.getElementById('bbsCanvas');
-    const ctx = canvas.getContext('2d');
-
-    // Set the font and text properties
-    ctx.font = '20px VT323';
-    ctx.fillStyle = '#0f0';
-
-    // Updated ASCII art (each backslash is escaped)
-    const lines = [
-      "    .---.    .-'''-.                     ",
-      "    |   |   '   _    \\                   ",
-      "    '---' /   /` '.   \\      .           ",
-      "    .---..   |     \\  '    .'|           ",
-      "    |   ||   '      |  '  <  |           ",
-      "    |   |\\    \\     / /    | |           ",
-      "    |   | `.   ` ..' / _   | | .'''-.    ",
-      "    |   |    '-...-'`.' |  | |/.'''. \\   ",
-      "    |   |           .   | /|  /    | |   ",
-      "    |   |         .'.'| |//| |     | |   ",
-      " __.'   '       .'.'.-'  / | |     | |   ",
-      "|      '        .'   \\_.'  | '.    | '.  ",
-      "|____.'                    '---'   '---'  "
-    ];
-
-    // Calculate starting position and line height
-    const startY = 30;
-    const lineHeight = 24;
-
-    // Draw each line of the ASCII art on the canvas
-    lines.forEach((line, index) => {
-      ctx.fillText(line, 10, startY + index * lineHeight);
-    });
-  </script>
-
+  <!-- Menu with links in alphabetical order with numbered prefixes -->
   <hr />
-
-  <!-- Menu with your provided links in alphabetical order with numbered prefixes -->
   <div class="links">
     <p>Enter a command or visit a link:</p>
     <ul>
@@ -128,7 +94,6 @@
       </li>
     </ul>
   </div>
-
   <hr />
 
   <!-- Command input field for user commands -->
@@ -136,7 +101,78 @@
   <input type="text" id="commandInput" autofocus placeholder="Type command here" />
 
   <script>
-    // Define a mapping from commands to URLs
+    /******************************************************
+     * 1) ASCII Art Lines
+     ******************************************************/
+    const asciiLines = [
+      "    .---.    .-'''-.                     ",
+      "    |   |   '   _    \\                   ",
+      "    '---' /   /` '.   \\      .           ",
+      "    .---..   |     \\  '    .'|           ",
+      "    |   ||   '      |  '  <  |           ",
+      "    |   |\\    \\     / /    | |           ",
+      "    |   | `.   ` ..' / _   | | .'''-.    ",
+      "    |   |    '-...-'`.' |  | |/.'''. \\   ",
+      "    |   |           .   | /|  /    | |   ",
+      "    |   |         .'.'| |//| |     | |   ",
+      " __.'   '       .'.'.-'  / | |     | |   ",
+      "|      '        .'   \\_.'  | '.    | '.  ",
+      "|____.'                    '---'   '---'  "
+    ];
+
+    /******************************************************
+     * 2) Responsive Canvas Drawing
+     ******************************************************/
+    const canvas = document.getElementById('bbsCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function drawASCIIArt() {
+      // We'll base our sizing on ~80% of the body's width.
+      // Adjust this if you want more or less horizontal space.
+      const desiredWidth = document.body.clientWidth * 0.8;
+
+      // Find the longest line (in characters).
+      const maxLength = asciiLines.reduce((acc, line) => {
+        return Math.max(acc, line.length);
+      }, 0);
+
+      // A simple way to estimate font size:
+      //   fontSize = (desiredWidth / numberOfCharsInLongestLine)
+      // We'll clamp it so it's not too large or too tiny.
+      let fontSize = desiredWidth / maxLength;
+      fontSize = Math.max(10, fontSize); // min
+      fontSize = Math.min(30, fontSize); // max
+
+      // Set the canvas width to the desired width.
+      canvas.width = desiredWidth;
+
+      // We'll compute the line height at ~1.2x font size for spacing.
+      const lineHeight = fontSize * 1.2;
+
+      // The total height = lineHeight * number_of_lines + some padding.
+      canvas.height = Math.ceil(lineHeight * asciiLines.length + fontSize);
+
+      // Now set the context font & color
+      ctx.font = fontSize + 'px VT323';
+      ctx.fillStyle = '#0f0';
+
+      // Draw each line
+      let y = lineHeight; // start a bit down from the top
+      asciiLines.forEach(line => {
+        ctx.fillText(line, 0, y);
+        y += lineHeight;
+      });
+    }
+
+    // Draw once on load
+    window.addEventListener('load', drawASCIIArt);
+
+    // Redraw on window resize (debounce optional for performance)
+    window.addEventListener('resize', drawASCIIArt);
+
+    /******************************************************
+     * 3) Command Input Logic
+     ******************************************************/
     const links = {
       "1": "https://1001albumsgenerator.com/shares/63d3d3d3fec17967d5164e60",
       "2": "https://music.apple.com/profile/birdsasbots",
@@ -144,7 +180,6 @@
       "4": "https://www.youtube.com/@CursedCataract"
     };
 
-    // Listen for the Enter key on the command input
     const commandInput = document.getElementById('commandInput');
     commandInput.addEventListener('keydown', function(event) {
       if (event.key === 'Enter') {
@@ -152,7 +187,7 @@
         if (links[command]) {
           window.open(links[command], '_blank');
         } else {
-          alert("Invalid command. Please enter a number between 1 and 4.");
+          alert("Invalid command. Please enter 1, 2, 3, or 4.");
         }
         commandInput.value = "";
       }
