@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>My Retro BBS Page</title>
+  <!-- Import a retro-inspired font from Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet" />
+
+  <style>
+    /* Basic Reset & Style */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background-color: #000;          /* Black background */
+      color: #0f0;                     /* Neon green text */
+      font-family: 'VT323', monospace; /* Retro font */
+      font-size: 16px;
+      line-height: 1.4;
+      padding: 20px;
+    }
+    canvas {
+      display: block;
+      margin-bottom: 20px;
+      /* Removed the border around the canvas */
+    }
+    a {
+      color: #0ff;  /* Bright cyan for links */
+      text-decoration: none;
+    }
+    a:hover {
+      color: #ff0;  /* Yellow on hover */
+    }
+    hr {
+      border: none;
+      border-top: 1px dashed #0f0; /* Dashed green line for separation */
+      margin: 1em 0;
+    }
+    .links ul {
+      list-style: none;
+      margin-left: 1em;
+    }
+    .links li {
+      margin: 0.4em 0;
+    }
+    /* Style for the command input field */
+    #commandInput {
+      background: none;
+      border: none;
+      outline: none;
+      color: #0f0;
+      font-family: 'VT323', monospace;
+      font-size: 16px;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Canvas element for the retro header -->
+  <canvas id="bbsCanvas" width="600" height="320"></canvas>
+
+  <script>
+    // Access the canvas element and its drawing context
+    const canvas = document.getElementById('bbsCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Set the font and text properties
+    ctx.font = '20px VT323';
+    ctx.fillStyle = '#0f0';
+
+    // Updated ASCII art (each backslash is escaped)
+    const lines = [
+      "    .---.    .-'''-.                     ",
+      "    |   |   '   _    \\                   ",
+      "    '---' /   /` '.   \\      .           ",
+      "    .---..   |     \\  '    .'|           ",
+      "    |   ||   '      |  '  <  |           ",
+      "    |   |\\    \\     / /    | |           ",
+      "    |   | `.   ` ..' / _   | | .'''-.    ",
+      "    |   |    '-...-'`.' |  | |/.'''. \\   ",
+      "    |   |           .   | /|  /    | |   ",
+      "    |   |         .'.'| |//| |     | |   ",
+      " __.'   '       .'.'.-'  / | |     | |   ",
+      "|      '        .'   \\_.'  | '.    | '.  ",
+      "|____.'                    '---'   '---'  "
+    ];
+
+    // Calculate starting position and line height
+    const startY = 30;
+    const lineHeight = 24;
+
+    // Draw each line of the ASCII art on the canvas
+    lines.forEach((line, index) => {
+      ctx.fillText(line, 10, startY + index * lineHeight);
+    });
+  </script>
+
+  <hr />
+
+  <!-- Menu with your provided links in alphabetical order with numbered prefixes -->
+  <div class="links">
+    <p>Enter a command or visit a link:</p>
+    <ul>
+      <li>
+        <a href="https://1001albumsgenerator.com/shares/63d3d3d3fec17967d5164e60" target="_blank">
+          1 - 1001 Albums You Must Hear Before You Die Summary
+        </a>
+      </li>
+      <li>
+        <a href="https://music.apple.com/profile/birdsasbots" target="_blank">
+          2 - Apple Music
+        </a>
+      </li>
+      <li>
+        <a href="https://x.com/joshtrimble" target="_blank">
+          3 - X
+        </a>
+      </li>
+      <li>
+        <a href="https://www.youtube.com/@CursedCataract" target="_blank">
+          4 - YouTube
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <hr />
+
+  <!-- Command input field for user commands -->
+  <p>Type a command (1-4) and press Enter:</p>
+  <input type="text" id="commandInput" autofocus placeholder="Type command here" />
+
+  <script>
+    // Define a mapping from commands to URLs
+    const links = {
+      "1": "https://1001albumsgenerator.com/shares/63d3d3d3fec17967d5164e60",
+      "2": "https://music.apple.com/profile/birdsasbots",
+      "3": "https://x.com/joshtrimble",
+      "4": "https://www.youtube.com/@CursedCataract"
+    };
+
+    // Listen for the Enter key on the command input
+    const commandInput = document.getElementById('commandInput');
+    commandInput.addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        const command = commandInput.value.trim();
+        if (links[command]) {
+          window.open(links[command], '_blank');
+        } else {
+          alert("Invalid command. Please enter a number between 1 and 4.");
+        }
+        commandInput.value = "";
+      }
+    });
+  </script>
+
+</body>
+</html>
